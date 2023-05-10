@@ -28,7 +28,7 @@ function SingleVideo() {
     }
     useEffect(() => {
         getVideo();
-    }, [video])
+    }, [])
     // const single = video.filter(item => item.id == id).map((item) => {
     //     return (
     //         <>

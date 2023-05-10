@@ -22,7 +22,7 @@ const DataTable = () => {
     useEffect(() => {
         getVideo();
 
-    }, [video])
+    }, [])
     const data = [
         { name: 'zazu', age: 12 },
         { name: 'zazu', age: 12 },

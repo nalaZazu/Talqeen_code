@@ -25,7 +25,7 @@ function SubCategories() {
     }
     useEffect(() => {
         getSubCategory();
-    }, [subcategoryItem])
+    }, [])
     
     const deleteData = async (post) => {
         setsubcategoryItem(subcategoryItem.filter((d) => d.id !== post.id))

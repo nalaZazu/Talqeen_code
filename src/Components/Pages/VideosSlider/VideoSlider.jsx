@@ -26,7 +26,7 @@ function VideoSlider() {
     }
     useEffect(() => {
         sendData();
-    }, [user])
+    }, [])
     return (
         <React.Fragment>
             {/* <section className="vehicle_section layout_padding">

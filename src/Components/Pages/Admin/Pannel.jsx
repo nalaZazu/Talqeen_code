@@ -1716,7 +1716,7 @@ function InputWithButton() {
   const token = localStorage.getItem('token')
   const [video, setVideo] = useState([])
   const getVideo = async () => {
-    console.log(id, "getvideo id in getvideo");
+    // console.log(id, "getvideo id in getvideo");
     let reqOptions = {
       url: `${process.env.REACT_APP_BASE_URL}admin/videos`,
       method: "GET",
@@ -1737,7 +1737,7 @@ function InputWithButton() {
   }, [])
   const single = video.map((item) => {
     return (
-      <div className="col-md-4" key={id}>
+      <div className="col-md-4">
         <div className="card mb-4 product-wap rounded-0 p-0">
           <Link to={`/videodetail/${item.id}`}>
             <div className="card rounded-0 p-0">

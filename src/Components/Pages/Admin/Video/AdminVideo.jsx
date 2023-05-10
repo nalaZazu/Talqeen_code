@@ -27,7 +27,7 @@ function AdminVideo() {
     }
     useEffect(() => {
         getVideo();
-    }, [video])
+    }, [])
     const deleteData = async (post) => {
         setVideo(video.filter((d) => d.id !== post.id))
         await axios.delete(`${process.env.REACT_APP_BASE_URL}admin/videos/${post.id}`, {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import "./admin.css"
 import AdminSide from './AdminSide'
 import { Link } from 'react-router-dom'

@@ -40,7 +40,7 @@ function Categories() {
     }
     useEffect(() => {
         getCategory();
-    }, [categoryItem])
+    }, [])
     const deleteData = async (row) => {
         setcategoryItem(categoryItem.filter((d) => d.id !== row.id))
         const res = await axios.delete(`${process.env.REACT_APP_BASE_URL}admin/video/category/${row.id}`, {

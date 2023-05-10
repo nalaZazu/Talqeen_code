@@ -6,6 +6,8 @@ function Videos() {
     // here get the array item and store into variable
     const token = localStorage.getItem('token')
     const [video, setVideo] = useState([])
+
+    console.log('video sufyan',video);
     const getVideo = async () => {
 
         let reqOptions = {
@@ -22,7 +24,7 @@ function Videos() {
     }
     useEffect(() => {
         getVideo();
-    }, [video])
+    }, [])
     const single = video.map((item) => {
         let { id, image, name, description } = item
         return (
@@ -53,11 +55,11 @@ function Videos() {
                 <div className="container py-5 mt-5 h-100">
                     <div className="row">
                         <div className=" single_video layout_padding">
+                            {video.length>0 ?
                             <div className="row">
-                                {
-                                    single
-                                }
+                                {single}
                             </div>
+                            :'No video'}
                         </div>
                     </div>
                 </div>
