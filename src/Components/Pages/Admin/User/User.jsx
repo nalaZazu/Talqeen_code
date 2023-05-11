@@ -33,7 +33,7 @@ function User() {
     }
     useEffect(() => {
         getUser();
-    }, [userData])
+    }, [])
 
     let display = userData.map((post, index) => {
         let { id, name, status, email, password, role, mobile } = post

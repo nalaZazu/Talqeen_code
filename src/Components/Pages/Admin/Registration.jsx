@@ -7,17 +7,36 @@ import { auth } from "./firebase";
 import { toast, ToastContainer } from 'react-toastify'
 import "firebase/auth";
 import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
+import { yupResolver } from '@hookform/resolvers/yup'
+import * as Yup from 'yup'
 function Register() {
     let move = useNavigate();
-    const data = useForm();
-    const { watch } = useForm()
     const [number, setNumber] = useState("");
     const [showButton, setShowButton] = useState(false);
     const [secondInput, setSecondInput] = useState("");
     const [showSecondInput, setShowSecondInput] = useState(false);
     const [showSecondButton, setSecondShowButton] = useState(false);
-    const password = watch("password");
-    const confirm_password = watch("confirm_password");
+    // for password 
+    const formSchema = Yup.object().shape({
+        name: Yup.string().required('Name is required'),
+        email: Yup.string().required('Email is required'),
+        address: Yup.string().required('Address is required'),
+        password: Yup.string()
+            .required('Password is mendatory')
+            .min(10, 'Password must be at 10 char long'),
+        confirm_password: Yup.string()
+            .required('confirm_Password is aslo  mendatory')
+            .oneOf([Yup.ref('password')], 'Passwords does not match'),
+        number: Yup
+            .string()
+            .matches(
+                /^\+(?:[0-9] ?){6,14}[0-9]$/,
+                "Please enter a valid phone number with country code"
+            )
+            .required("Phone number is required"),
+    })
+    const formOptions = { resolver: yupResolver(formSchema) }
+    const data = useForm(formOptions);
     // reCAPTCHA solved
     const configCaptch = () => {
         const auth = getAuth();
@@ -39,10 +58,7 @@ function Register() {
         signInWithPhoneNumber(auth, phoneNumber, appVerifier)
             .then((confirmationResult) => {
                 window.confirmationResult = confirmationResult;
-                // if (phoneNumber == "92") {
-                //     return true
-                // }
-                setShowSecondInput(true); 
+                setShowSecondInput(true);
             }).catch((error) => {
                 console.log(error, "testing error")
             });
@@ -61,10 +77,11 @@ function Register() {
         });
     }
     const SignIn = async (data) => {
+        console.log(data);
         await axios.post(`${process.env.REACT_APP_BASE_URL}register`, data);
         localStorage.setItem('role', "user");
         move("/login")
-        console.log(data);
+
     }
     const handleNumberChange = (event) => {
         const inputNumber = event.target.value.trim();
@@ -73,9 +90,7 @@ function Register() {
     };
     const handleVerifyClick = (e) => {
         e.preventDefault();
-        const numberRegex = /^[0-9]*$/;
-
-        if (!numberRegex.test(number)) {
+        if (number.length !== 12) {
             toast.error("Number is not vaild")
         }
         else {
@@ -92,7 +107,6 @@ function Register() {
         <React.Fragment>
             <section className="h-100 " style={{ margin: "30px 0 210px 0" }}>
                 <div className="container-fluid h-custom h-100">
-
                     <div className="row d-flex justify-content-center align-items-center h-100">
                         <h1 style={{ textAlign: "center", color: "#fec913" }}>Register</h1>
                         <div className="col-md-9 col-lg-6 col-xl-5">
@@ -109,85 +123,73 @@ function Register() {
                                     <label className="form-label text-warning" htmlFor="form3Example3">
                                         Name
                                     </label>
-                                    <input type="text" id="name" className="form-control form-control-lg"
+                                    <input type="text" id="name"
                                         placeholder="Enter Your Name"
-                                        {...data.register("name", { required: true })}
+                                        className={`form-control ${data.formState.errors.address ? 'is-invalid' : ''}`}
+                                        {...data.register("name")}
                                     />
-                                    {data.formState.errors.name && data.formState.errors.name.type == 'required' && <div className="error"> Please Your Name</div>}
+                                    <div className="error">{data.formState.errors.name?.message}</div>
                                 </div>
-
                                 {/* Email Input */}
                                 <div className="form-outline mb-2">
                                     <label className="form-label text-warning" htmlFor="email">
                                         Email address
                                     </label>
-                                    <input type="email" id="email" className="form-control form-control-lg" placeholder="Enter email address" {...data.register('email', {
-                                        required: true, validate: ((data) => {
-                                            if (/^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/.test(data)) { return true } else {
-                                                return false;
-                                            }
-                                        })
-                                    })}
+                                    <input type="email" id="email" className={`form-control ${data.formState.errors.email ? 'is-invalid' : ''}`}
+                                        {...data.register("email")} placeholder="Enter email address"
                                     />
-                                    {data.formState.errors.email ? (data.formState.errors.email.type === 'required' ?
-                                        <div className="error">Please enter your Email</div> :
-                                        <div className="error">Please enter a valid Email</div>) :
-                                        null}     </div>
+                                     <div className="error">{data.formState.errors.email?.message}</div>
+                                </div>
 
                                 <div className="form-outline mb-2">
                                     <label className="form-label text-warning" htmlFor="form3Example3">
                                         Address
                                     </label>
-                                    <input type="text" id="address" className="form-control form-control-lg"
+                                    <input type="text" id="address"
                                         placeholder="Address"
-                                        {...data.register("address", { required: true })}
+                                        className={`form-control ${data.formState.errors.address ? 'is-invalid' : ''}`}
+                                        {...data.register("address")}
                                     />
-                                    {data.formState.errors.address && data.formState.errors.address.type == 'required' && <div className="error"> Please Your Address</div>}
+                                    <div className="error">{data.formState.errors.address?.message}</div>
                                 </div>
                                 {/* Password input */}
                                 <div className="form-outline mb-2">
                                     <label className="form-label text-warning" htmlFor="password">
                                         Password
                                     </label>
-                                    <input type="password" id="password" className="form-control form-control-lg" placeholder="Enter password" name='password'
-                                        value={password}  {...data.register("password", { required: true })}
+                                    <input
+                                        name="password"
+                                        type="password"
+                                        placeholder="Enter a Password"
+                                        {...data.register('password')}
+                                        className={`form-control ${data.formState.errors.password ? 'is-invalid' : ''}`}
                                     />
-                                    {data.formState.errors.password && data.formState.errors.password.type === "required" && (
-                                        <div className="error">Please enter your password</div>
-                                    )}
-
+                                    <div className="error">{data.formState.errors.password?.message}</div>
                                 </div>
                                 {/* confirm password */}
                                 <div className="form-outline mb-2">
                                     <label className="form-label text-warning" htmlFor="password">
                                         Confirm  Password
                                     </label>
-                                    <input type="password" id="confirm_password" className="form-control form-control-lg" placeholder="Enter Confirm assword"
+                                    <input
                                         name="confirm_password"
-                                        {...data.register("confirm_password", { required: true })}
-                                        value={confirm_password}
-                                        {...data.register("confirm_password", {
-                                            required: true,
-                                            validate: (value) => value === password,
-                                        })}
-                                    />
-                                    {data.formState.errors.confirm_password && data.formState.errors.confirm_password.type === "required" && (
-                                        <div className="error">Please confirm your password</div>
-                                    )}
-                                    {/* {data.formState.errors.confirm_password && data.formState.errors.confirm_password.type === "validate" && (
-                                        <div className="error">Passwords do not match</div>
-                                    )} */}
+                                        type="password"
+                                        placeholder="Enter Confirm password"
+                                        {...data.register('confirm_password')}
+                                        className={`form-control ${data.formState.errors.confirm_password ? 'is-invalid' : ''}`} />
+                                    <div className="error">{data.formState.errors.confirm_password?.message}</div>
                                 </div>
                                 {/* Mobile Number */}
                                 <div className="form-outline mb-2">
                                     <label className="form-label text-warning" htmlFor="form3Example3">
                                         Mobile Number
                                     </label>
-                                    <input type="number" id="number" className="form-control form-control-lg"
-                                        placeholder="+923..." value={number} onChange={handleNumberChange}
-                                    // {...data.register("mobile", { required: true })}
+                                    <input type="number" id="number"
+                                        placeholder="923..." value={number} onChange={handleNumberChange}
+                                        className={`form-control ${data.formState.errors.number ? 'is-invalid' : ''}`}
+                                        data={data.register('number')}
                                     />
-                                    {data.formState.errors.number && data.formState.errors.number.type == 'required' && <div className="error"> Please Your Mobile Number</div>}
+                                    <div className="error">{data.formState.errors.number?.message}</div>
                                     {showButton &&
                                         <div className="text-center text-lg-start mt-2 pt-2 ">
                                             <button id="sign-in-button" className="btn btn-warning btn-lg w-25" style={{ color: "#fefeff" }}
@@ -213,6 +215,8 @@ function Register() {
                                             onClick={verifyCodeOpt}  > Verify</button>
                                     </div>}
                                 </div>
+                                {/* <input name="tel" ref={data.register('tel')} />
+                                {data.formState.errors.tel && <p>{data.formState.errors.tel.message}</p>} */}
                                 <div className="text-center text-lg-start mt-2 pt-2 ">
                                     <button type="submit" className="btn btn-warning btn-lg w-100" style={{ paddingLeft: "2.5rem", paddingRight: "2.5rem", color: "#fefeff" }}> Register
                                     </button>

@@ -10,8 +10,6 @@ function Admin() {
     const handleToggle = () => {
         setIsOpen(!isOpen);
     };
-
-
     const closeSidebar = () => {
         document.getElementById("mySidenav").style.width = "0";
     }

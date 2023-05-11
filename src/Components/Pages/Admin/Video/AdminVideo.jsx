@@ -43,7 +43,6 @@ function AdminVideo() {
         return (
             <tr>
                 <th scope="row" key={index}>{index + 1}</th>
-                <td>{id}</td>
                 <td>{name}</td>
                 <td>{url}</td>
                 <td>{category_id}</td>

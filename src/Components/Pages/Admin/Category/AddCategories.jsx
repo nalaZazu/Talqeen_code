@@ -20,7 +20,6 @@ function AddCategories() {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
         };
-
         await axios.post(`${process.env.REACT_APP_BASE_URL}admin/video/category `, formData, { headers })
             .then(response => {
                 console.log('Data saved successfully:', response.data);

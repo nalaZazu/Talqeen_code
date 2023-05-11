@@ -32,8 +32,6 @@ function Edit(props) {
         };
         await axios.put(`${process.env.REACT_APP_BASE_URL}admin/videos/${id}`, formData, { headers });
         move('/adminvideo')
-        console.log(formData, "video eidit datat");
-
     }
     const getCategory = async () => {
         let reqOptions1 = {
@@ -45,7 +43,6 @@ function Edit(props) {
             },
         }
         let resp = await axios.request(reqOptions1)
-        console.log(resp.data.data, "addvideo cate");
         setshowDisplay(resp.data.data)
     }
     useEffect(() => {
