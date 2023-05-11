@@ -9,6 +9,7 @@ import "firebase/auth";
 import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as Yup from 'yup'
+import { async } from '@firebase/util';
 function Register() {
     let move = useNavigate();
     const [number, setNumber] = useState("");
@@ -23,17 +24,15 @@ function Register() {
         address: Yup.string().required('Address is required'),
         password: Yup.string()
             .required('Password is mendatory')
-            .min(10, 'Password must be at 10 char long'),
+            .min(8, 'Password must be at 8 char long'),
         confirm_password: Yup.string()
             .required('confirm_Password is aslo  mendatory')
             .oneOf([Yup.ref('password')], 'Passwords does not match'),
-        number: Yup
-            .string()
+        phoneNumber: Yup.string().required("Phone number is required")
             .matches(
                 /^\+(?:[0-9] ?){6,14}[0-9]$/,
                 "Please enter a valid phone number with country code"
             )
-            .required("Phone number is required"),
     })
     const formOptions = { resolver: yupResolver(formSchema) }
     const data = useForm(formOptions);
@@ -49,18 +48,20 @@ function Register() {
         }, auth);
     }
     // for phone Number 
-    const onSignInSubmit = (number) => {
-        console.log(number, "for phone verification")
+    const onSignInSubmit =  (number) => {
+        console.log("number",number)
         configCaptch();
         const phoneNumber = "+" + number;
         const appVerifier = window.recaptchaVerifier;
         const auth = getAuth();
         signInWithPhoneNumber(auth, phoneNumber, appVerifier)
             .then((confirmationResult) => {
-                window.confirmationResult = confirmationResult;
+               window.confirmationResult = confirmationResult;
+                setShowButton(false)
                 setShowSecondInput(true);
             }).catch((error) => {
-                console.log(error, "testing error")
+                console.log("testing error",error)
+                toast.error(error)
             });
     }
     // for the opt  verification
@@ -74,20 +75,30 @@ function Register() {
             // User couldn't sign in (bad verification code?)
             toast.error("Opt is not Valid")
             console.log(error, "opt error testing");
+            // setShowButton(true)
+            // setShowSecondInput(false)
         });
     }
     const SignIn = async (data) => {
-        console.log(data);
-        await axios.post(`${process.env.REACT_APP_BASE_URL}register`, data);
-        localStorage.setItem('role', "user");
-        move("/login")
+        // if(data.phoneNumber){
+        //     setShowButton(true);
+            
+        // }
+
+        setShowButton(true)
+        const res=  onSignInSubmit(data.phoneNumber)
+        verifyCodeOpt()
+        console.log('res',res);
+        // await axios.post(`${process.env.REACT_APP_BASE_URL}register`, data);
+        // localStorage.setItem('role', "user");
+        // move("/login")
 
     }
-    const handleNumberChange = (event) => {
-        const inputNumber = event.target.value.trim();
-        setNumber(inputNumber);
-        setShowButton(inputNumber !== "");
-    };
+    // const handleNumberChange = (event) => {
+    //     const inputNumber = event.target.value.trim();
+    //     setNumber(inputNumber);
+    //     setShowButton(inputNumber !== "");
+    // };
     const handleVerifyClick = (e) => {
         e.preventDefault();
         if (number.length !== 12) {
@@ -95,7 +106,7 @@ function Register() {
         }
         else {
             toast.success("Send a OPT")
-            onSignInSubmit(number)
+             onSignInSubmit(number)
         }
     };
     const handleSecondInputChange = (event) => {
@@ -138,7 +149,7 @@ function Register() {
                                     <input type="email" id="email" className={`form-control ${data.formState.errors.email ? 'is-invalid' : ''}`}
                                         {...data.register("email")} placeholder="Enter email address"
                                     />
-                                     <div className="error">{data.formState.errors.email?.message}</div>
+                                    <div className="error">{data.formState.errors.email?.message}</div>
                                 </div>
 
                                 <div className="form-outline mb-2">
@@ -184,16 +195,17 @@ function Register() {
                                     <label className="form-label text-warning" htmlFor="form3Example3">
                                         Mobile Number
                                     </label>
-                                    <input type="number" id="number"
-                                        placeholder="923..." value={number} onChange={handleNumberChange}
-                                        className={`form-control ${data.formState.errors.number ? 'is-invalid' : ''}`}
-                                        data={data.register('number')}
+                                    <input type="text"
+                                        placeholder="923..." name="phoneNumber"
+                                        className={`form-control ${data.formState.errors.phoneNumber ? 'is-invalid' : ''}`}
+                                        {...data.register('phoneNumber')}
                                     />
-                                    <div className="error">{data.formState.errors.number?.message}</div>
+                                    <div className="error">{data.formState.errors.phoneNumber?.message}</div>
                                     {showButton &&
                                         <div className="text-center text-lg-start mt-2 pt-2 ">
                                             <button id="sign-in-button" className="btn btn-warning btn-lg w-25" style={{ color: "#fefeff" }}
-                                                onClick={handleVerifyClick}> Send
+                                            type="submit"
+                                                > Send
                                             </button>
                                             <ToastContainer />
                                         </div>
@@ -210,7 +222,7 @@ function Register() {
                                             />
                                         </div>
                                     }
-                                    {showSecondButton && <div className="text-center text-lg-start mt-2 pt-2 ">
+                                    {showSecondInput && <div className="text-center text-lg-start mt-2 pt-2 ">
                                         <button type="button" id="sign-in-button" className="btn btn-warning btn-lg w-25" style={{ color: "#fefeff" }}
                                             onClick={verifyCodeOpt}  > Verify</button>
                                     </div>}
