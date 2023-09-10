@@ -1,7 +1,9 @@
 #To intsall all required dependecies
-npm install
+
+```npm install```
 
 Start the project
+
 ```npm start```
 
 Runs the app in the development mode.
